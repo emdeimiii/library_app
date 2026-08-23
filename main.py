@@ -1,4 +1,8 @@
+from typing import List
+
 from fastapi import FastAPI, HTTPException
+
+from schemas import TypeBook, TypeBookDetail, TypeReader, TypeReaderProfile
 
 app = FastAPI()
 
@@ -71,23 +75,23 @@ readers = [
         ],
         "activeBooks": [],
     }]
-@app.get("/books")
+@app.get("/books", response_model=List[TypeBook] )
 def get_books():
     return books
 
-@app.get("/readers")
+@app.get("/readers",response_model=List[TypeReader] )
 def get_readers():
     return readers
 
     
-@app.get("/readers/{reader_id}")
+@app.get("/readers/{reader_id}", response_model=TypeReaderProfile)
 def get_reader(reader_id: str):
     for reader in readers:
         if reader["id"] == reader_id:
             return reader
     raise HTTPException(status_code=404, detail="Читатель не найден")
 
-@app.get("/books/{books_id}")
+@app.get("/books/{books_id}", response_model=TypeBookDetail)
 def get_book_info(books_id: str):
     for book in books:
         if book["id"] == books_id:
