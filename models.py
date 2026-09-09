@@ -1,6 +1,6 @@
 from datetime import date
 
-from sqlalchemy import Column, Date, ForeignKey, create_engine, Integer, String
+from sqlalchemy import Column, Date, DateTime, ForeignKey, create_engine, Integer, String, Boolean, func
 
 from sqlalchemy.orm import declarative_base, relationship
 
@@ -39,3 +39,20 @@ class Reader_books(Base):
 
     reader = relationship("Reader", back_populates="reader_books")
     book = relationship("Book", back_populates="reader_books")
+
+
+
+
+class User(Base):
+    __tablename__ = 'user'
+    id  = Column (Integer, autoincrement=True, primary_key=True)
+    username = Column(String, unique=True, nullable=False)
+    email = Column(String, unique=True, nullable=False)
+    password_hash = Column(String ,nullable=False)
+
+    is_admin = Column(Boolean, default=False)
+    is_librarian = Column(Boolean, default=True)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now())
+    
