@@ -167,3 +167,24 @@ HISTORY_DATA = [
     (5, 3, "2024-10-01", "2024-11-10"),
     (5, 4, "2024-08-01", None),  # активная выдача
 ]
+
+ROLE_DATA = [
+    {
+    'username': "admin",
+    'email': "admin@library.ru",
+    'password': "admin123",
+    'role': "admin"
+    }, 
+    {
+        'username': "librarian1",
+            'email': "lib1@library.ru",
+            'password': "lib12345",
+            'role': "librarian"},
+    
+            {
+                'username': "librarian2",
+                'email': "lib2@library.ru",
+                'password': "lib67890",
+                'role': "librarian"
+                }
+]

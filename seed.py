@@ -1,4 +1,5 @@
-from data import BOOKS_DATA, READERS_DATA
+from auth import get_password_hash
+from data import BOOKS_DATA, READERS_DATA, ROLE_DATA
 from database import Base, engine
 from models import *
 from sqlalchemy.orm import Session
@@ -8,6 +9,7 @@ Base.metadata.create_all(bind=engine)
 
 def clear_data(session: Session):
     session.query(Reader_books).delete()
+    session.query(User).delete()
     session.query(Book).delete()
     session.query(Reader).delete()
     session.commit()
@@ -26,6 +28,22 @@ def seed_data(session: Session):
             description=b.get("description"),
         )
         session.add(book)
+
+    for a in ROLE_DATA:
+        role= User(
+            id=a['id'],
+            username = a['username'],
+            email = a['email'],
+            password_hash = get_password_hash(a['password_hash']),
+            is_admin = a['is_admin'],
+            is_librarian = a['is_librarian'],
+            is_active = a['is_active'],
+            created_at=a['created_at'],
+            updated_at=a['updated_at']
+        )
+        session.add(role)
+
+
 
     for r in READERS_DATA:
         reader = Reader(
