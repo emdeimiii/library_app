@@ -1,1 +1,8 @@
 venv/
+
+library4.db
+library2.db
+library5.db
+database.db
+
+__pycache__/
