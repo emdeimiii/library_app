@@ -5,13 +5,40 @@ from pydantic import BaseModel, EmailStr, Field, validator
 
 
 class TypeBook(BaseModel):
-    id: str
-    title: str = Field(..., min_length=1, max_length=200, description="Краткое название книги")
+    id: int
+    title: str = Field(..., min_length=1, max_length=200, description="Название книги")
     author: str = Field(..., min_length=1, max_length=100)
-    year: int = Field(..., ge=1000, le=2100, description="Год издания")
-    genre: str = Field(..., min_length=1, max_length=50)
-    isAvailable: bool = Field(True, description="Статус доступности")
-    description: str = Field("", max_length=1000)
+    isbn: Optional[str] = Field(None, max_length=20)  
+    year: Optional[int] = Field(None, ge=1000, le=2100, description="Год издания")
+    genre: Optional[str] = Field(None, max_length=50)
+    available_copies: int = Field(0, ge=0, description="Количество доступных копий")
+    description: Optional[str] = Field("", max_length=1000)
+
+    @validator("title")
+    def title_cannot_be_whitespace(cls, v):
+        if not v.strip():
+            raise ValueError("title must contain non-whitespace characters")
+        return v
+
+    @validator("author")
+    def author_cannot_be_whitespace(cls, v):
+        if not v.strip():
+            raise ValueError("author must contain non-whitespace characters")
+        return v
+
+    class Config:
+        from_attributes = True
+
+
+class BookCreate(BaseModel):
+
+    title: str = Field(..., min_length=1, max_length=200)
+    author: str = Field(..., min_length=1, max_length=100)
+    isbn: Optional[str] = Field(None, max_length=20)
+    year: Optional[int] = Field(None, ge=1000, le=2100)
+    genre: Optional[str] = Field(None, max_length=50)
+    available_copies: int = Field(0, ge=0)
+    description: Optional[str] = Field("", max_length=1000)
 
     @validator("title")
     def title_cannot_be_whitespace(cls, v):
@@ -27,40 +54,49 @@ class TypeBook(BaseModel):
 
 
 class BookHistoryItem(BaseModel):
-    bookId: str
-    takenAt: date
-    returnedAt: Optional[date] = None
+    book_id: int 
+    taken_at: str
+    returned_at: Optional[str] = None
 
-
-class TypeReader(BaseModel):
-    id: str
-    fullName: str = Field(..., min_length=1, max_length=200)
-    email: EmailStr
-    phone: str = Field(..., pattern=r"^\+?[0-9\s\-\(\)]{10,20}$")
-    registrationDate: date  # ✅ Исправлено: было str
-    booksHistory: List[BookHistoryItem] = []
-    activeBooks: List[str] = []
-
-    @validator("fullName")
-    def fullName_cannot_be_whitespace(cls, v):
-        if not v.strip():
-            raise ValueError("fullName must contain non-whitespace characters")
-        return v
-
-
-class TypeReaderProfile(TypeReader):
-    reading_history: Optional[List[TypeBook]] = None
+    class Config:
+        from_attributes = True
 
 
 class TypeBookDetail(TypeBook):
-    is_available: bool = Field(True, description="Статус доступности")
-    reader_name: Optional[str] = None
+
+    pass
+
+
+
+
+class TypeReader(BaseModel):
+
+    id: int 
+    full_name: str = Field(..., min_length=1, max_length=200)
+    email: EmailStr
+    phone: Optional[str] = Field(None, pattern=r"^\+?[0-9\s\-\(\)]{10,20}$")
+    registration_date: str 
+    books_history: List[BookHistoryItem] = []
+
+    @validator("full_name")
+    def full_name_cannot_be_whitespace(cls, v):
+        if not v.strip():
+            raise ValueError("full_name must contain non-whitespace characters")
+        return v
+
+    class Config:
+        from_attributes = True
+
+
+class TypeReaderProfile(TypeReader):
+    """Профиль читателя с активными книгами."""
+    active_books: List[TypeBook] = []
+
 
 
 class UserBase(BaseModel):
     username: str = Field(..., min_length=3, max_length=50, pattern=r"^[a-zA-Z0-9_]+$")
     email: EmailStr
-    # Булевы поля ролей
     is_admin: bool = False
     is_librarian: bool = False
 
@@ -82,10 +118,10 @@ class UserResponse(UserBase):
     id: int
     is_active: bool
     created_at: datetime
-    reader_id: Optional[int] = None
 
     class Config:
         from_attributes = True
+
 
 
 class Token(BaseModel):

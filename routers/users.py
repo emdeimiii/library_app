@@ -122,7 +122,7 @@ def get_user_by_id(
     return user
 
 
-@router.patch("/users/{user_id}/role")
+@router.put("/users/{user_id}/role")
 def update_user_role(
     user_id: int,
     role_data: UserUpdate,
